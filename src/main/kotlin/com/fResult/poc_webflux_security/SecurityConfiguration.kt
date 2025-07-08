@@ -2,8 +2,11 @@ package com.fResult.poc_webflux_security
 
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
+import org.springframework.security.config.Customizer
+import org.springframework.security.config.web.server.ServerHttpSecurity
 import org.springframework.security.core.userdetails.MapReactiveUserDetailsService
 import org.springframework.security.core.userdetails.User
+import org.springframework.security.web.server.SecurityWebFilterChain
 
 @Configuration
 open class SecurityConfiguration {
@@ -22,6 +25,13 @@ open class SecurityConfiguration {
       .let { MapReactiveUserDetailsService(*it.toTypedArray()) }
   }
 
+  @Bean
+  open fun securityFilterChain(serverSecurity: ServerHttpSecurity): SecurityWebFilterChain =
+    serverSecurity.httpBasic(Customizer.withDefaults())
+      .authorizeExchange(::authorizeExchangeCustomizer)
+      .csrf(ServerHttpSecurity.CsrfSpec::disable)
+      .build()
+
   private val toUserBuilder: (Pair<String, String>) -> User.UserBuilder = { (username, password) ->
     User.withUsername(username).password("{noop}$password")
   }
@@ -31,4 +41,7 @@ open class SecurityConfiguration {
     1 -> userBuilder.roles("USER", "ADMIN")
     else -> userBuilder
   }
+
+  private fun authorizeExchangeCustomizer(exchangeSpec: ServerHttpSecurity.AuthorizeExchangeSpec) =
+    exchangeSpec.pathMatchers("/greetings").authenticated().anyExchange().permitAll()
 }
