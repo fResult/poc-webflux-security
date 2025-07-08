@@ -1,5 +1,6 @@
-package com.fResult.poc_webflux_security
+package com.fResult.poc_webflux_security.rc
 
+import com.fResult.poc_webflux_security.GreetingResponse
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.security.core.userdetails.UserDetails
 import org.springframework.web.bind.annotation.GetMapping
