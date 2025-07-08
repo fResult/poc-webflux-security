@@ -7,12 +7,10 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import reactor.core.publisher.Mono
 
-data class GreetingResponse(val greetings: String)
-
 @RestController
-@RequestMapping("/greetings")
+@RequestMapping("/rc")
 class GreetingController {
-  @GetMapping
+  @GetMapping("/greetings")
   fun greet(@AuthenticationPrincipal user: Mono<UserDetails>) =
-    user.map(UserDetails::getUsername).map { GreetingResponse(it) }
+    user.map(UserDetails::getUsername).map { GreetingResponse("Hello, from Rest Controller, $it") }
 }
