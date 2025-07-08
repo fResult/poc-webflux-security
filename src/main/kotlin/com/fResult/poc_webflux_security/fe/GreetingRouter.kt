@@ -9,16 +9,11 @@ import org.springframework.web.reactive.function.server.ServerResponse
 import org.springframework.web.reactive.function.server.coRouter
 
 @Configuration
-open class GreetingRouters {
+open class GreetingRouter(val greetingHandler: GreetingHandler) {
   @Bean
   open fun greetingRouts(): RouterFunction<ServerResponse> = coRouter {
     "/fe".nest {
-      GET("/greetings") { request ->
-        request.principal().map { it.name }
-          .map { GreetingResponse("Hello from Functional Endpoint, $it!") }
-          .flatMap { ServerResponse.ok().bodyValue(it) }
-          .awaitSingle()
-      }
+      GET("/greetings", greetingHandler::greet)
     }
   }
 }
