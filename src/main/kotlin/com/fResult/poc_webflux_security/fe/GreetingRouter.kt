@@ -1,7 +1,5 @@
 package com.fResult.poc_webflux_security.fe
 
-import com.fResult.poc_webflux_security.GreetingResponse
-import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import org.springframework.web.reactive.function.server.RouterFunction
