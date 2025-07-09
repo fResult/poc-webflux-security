@@ -12,6 +12,7 @@ open class GreetingRouter(val greetingHandler: GreetingHandler) {
   open fun greetingRouts(): RouterFunction<ServerResponse> = coRouter {
     "/fe".nest {
       GET("/greetings", greetingHandler::greet)
+      GET("/greetings-with-roles", greetingHandler::greetWithRoles)
     }
   }
 }
