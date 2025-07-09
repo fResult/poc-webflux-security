@@ -19,8 +19,7 @@ open class SecurityConfiguration {
   open fun reactiveUserDetailsService(): MapReactiveUserDetailsService {
     val userPasswordPairs = listOf("fResult" to "fResult123", "KornZilla" to "KornZilla123")
 
-    return userPasswordPairs.map(toUserBuilder)
-      .mapIndexed(::toAppliedRoles)
+    return userPasswordPairs.map(toUserBuilderWithRoles)
       .map(User.UserBuilder::build)
       .let { MapReactiveUserDetailsService(*it.toTypedArray()) }
   }
@@ -32,16 +31,23 @@ open class SecurityConfiguration {
       .csrf(ServerHttpSecurity.CsrfSpec::disable)
       .build()
 
-  private val toUserBuilder: (Pair<String, String>) -> User.UserBuilder = { (username, password) ->
-    User.withUsername(username).password("{noop}$password")
+  private val toUserBuilderWithRoles: (Pair<String, String>) -> User.UserBuilder = { (username, password) ->
+    User.withUsername(username).password("{noop}$password").let(applyRolesToUserBuilder(username))
   }
 
-  private fun toAppliedRoles(idx: Int, userBuilder: User.UserBuilder) = when (idx) {
-    0 -> userBuilder.roles("USER")
-    1 -> userBuilder.roles("USER", "ADMIN")
-    else -> userBuilder
+  private fun applyRolesToUserBuilder(username: String): Identity<User.UserBuilder> = { userBuilder ->
+    when (username) {
+      "KornZilla" -> userBuilder.roles("USER", "ADMIN")
+      "fResult" -> userBuilder.roles("USER")
+      else -> userBuilder
+    }
   }
 
-  private fun authorizeExchangeCustomizer(exchangeSpec: ServerHttpSecurity.AuthorizeExchangeSpec) =
-    exchangeSpec.pathMatchers("/greetings").authenticated().anyExchange().permitAll()
+  private fun authorizeExchangeCustomizer(
+    exchangeSpec: ServerHttpSecurity.AuthorizeExchangeSpec,
+  ): ServerHttpSecurity.AuthorizeExchangeSpec =
+    exchangeSpec.pathMatchers("/rc/greetings**", "/fe/greetings**")
+      .authenticated()
+      .anyExchange()
+      .permitAll()
 }
